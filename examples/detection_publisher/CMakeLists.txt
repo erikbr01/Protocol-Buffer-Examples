@@ -16,3 +16,8 @@ target_include_directories(${PROJECT_NAME} PUBLIC ${Protobuf_INCLUDE_DIRS})
 
 find_package(cppzmq)
 target_link_libraries(detection_publisher PUBLIC cppzmq)
+
+find_package(fastcdr REQUIRED)
+find_package(fastrtps REQUIRED)
+
+target_link_libraries(${PROJECT_NAME} PRIVATE fastcdr fastrtps comm_lib)

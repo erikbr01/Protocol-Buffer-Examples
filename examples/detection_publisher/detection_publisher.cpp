@@ -7,6 +7,13 @@
 #include "addressbook.pb.h"
 #include <zmq.hpp>
 
+// #include "Mocap_msg.h"
+// #include "Mocap_msgPubSubTypes.h"
+#include "domain_participant.h"
+#include "publisher.h"
+
+
+
 int main () {
     //  Prepare our context and socket
     zmq::context_t context (1);

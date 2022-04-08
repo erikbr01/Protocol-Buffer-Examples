@@ -13,3 +13,4 @@ set(CMAKE_BUILD_TYPE RelWithDebInfo)
 
 add_subdirectory(protos)
 add_subdirectory(examples)
+add_subdirectory(lib)
