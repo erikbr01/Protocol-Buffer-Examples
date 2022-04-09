@@ -10,7 +10,6 @@ set(CMAKE_BUILD_TYPE RelWithDebInfo)
 find_package(Protobuf REQUIRED)
 
 add_executable(${PROJECT_NAME} detection_publisher.cpp)
-target_link_libraries(${PROJECT_NAME} PUBLIC addressbook ${Protobuf_LIBRARIES})
 target_link_libraries(${PROJECT_NAME} PUBLIC detection_msg ${Protobuf_LIBRARIES})
 target_include_directories(${PROJECT_NAME} PUBLIC ${Protobuf_INCLUDE_DIRS})
 
