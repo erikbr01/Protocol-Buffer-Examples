@@ -5,5 +5,5 @@ message Detection {
 	optional float y = 2;
 	optional float z = 3;
 	optional string label = 4;
-	optional int32 confidence = 5;
+	optional float confidence = 5;
 }
