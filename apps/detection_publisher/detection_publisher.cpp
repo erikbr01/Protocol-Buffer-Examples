@@ -22,7 +22,7 @@ int main () {
                                        "mocap_vision_detection", dp.participant());
 
     cpp_msg::Mocap_msg msg;
-    pub.init();
+    // pub.init();
 
     //  Prepare our context and socket
     zmq::context_t context (1);
@@ -52,7 +52,7 @@ int main () {
         msg.position.y = det.y();
         msg.position.z = det.z();
 
-        pub.publish(msg);
+        // pub.publish(msg);
 
 
         //  Send reply back to client
