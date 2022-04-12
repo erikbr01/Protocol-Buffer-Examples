@@ -9,7 +9,8 @@ set(CMAKE_BUILD_TYPE RelWithDebInfo)
 # Find required protobuf package
 find_package(Protobuf REQUIRED)
 
-add_executable(${PROJECT_NAME} detection_publisher.cpp)
+add_executable(${PROJECT_NAME} src/detection_publisher.cpp src/frame_conversions.cpp)
+target_include_directories(${PROJECT_NAME} PUBLIC include)
 target_link_libraries(${PROJECT_NAME} PUBLIC detection_msg ${Protobuf_LIBRARIES})
 target_include_directories(${PROJECT_NAME} PUBLIC ${Protobuf_INCLUDE_DIRS})
 
@@ -19,4 +20,4 @@ target_link_libraries(detection_publisher PUBLIC cppzmq)
 find_package(fastcdr REQUIRED)
 find_package(fastrtps REQUIRED)
 
-target_link_libraries(${PROJECT_NAME} PRIVATE fastcdr fastrtps comm_lib)
+target_link_libraries(${PROJECT_NAME} PRIVATE fastcdr fastrtps comm_lib raptor_lib)

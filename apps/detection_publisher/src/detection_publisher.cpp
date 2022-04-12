@@ -4,14 +4,19 @@
 #include <string>
 
 #include "detection_msg.pb.h"
-#include "addressbook.pb.h"
+
 #include <zmq.hpp>
+
 
 #include "Mocap_msg.h"
 #include "Mocap_msgPubSubTypes.h"
 #include "domain_participant.h"
 #include "publisher.h"
 
+#include "frame_conversions.h"
+#include "Item.h"
+#include "Quad.h"
+#include "Gripper.h"
 
 
 int main () {
@@ -24,6 +29,13 @@ int main () {
     cpp_msg::Mocap_msg msg;
     // pub.init();
 
+    std::string log; 
+    Item stand("Stand", dp, "mocap_srl_stand");
+    Item drop("drop", dp, "mocap_srl_drop");
+    Gripper gripper("Gripper", dp, "grip_cmd");
+    Item box("box", dp, "mocap_srl_box");
+    Quad quad("Quad", &log, dp, "mocap_srl_quad", "pos_cmd", &gripper, &stand);
+    quad.get_pose();
     //  Prepare our context and socket
     zmq::context_t context (1);
     zmq::socket_t socket (context, ZMQ_REP);
