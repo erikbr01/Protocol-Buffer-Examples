@@ -27,13 +27,9 @@ int main() {
   // pub.init();
 
   std::string log;
-  Item stand("Stand", dp, "mocap_srl_stand");
-  Item drop("drop", dp, "mocap_srl_drop");
-  Gripper gripper("Gripper", dp, "grip_cmd");
   Item box("box", dp, "mocap_srl_box");
-  Quad quad("Quad", &log, dp, "mocap_srl_quad", "pos_cmd", &gripper, &stand);
+  Quad quad("Quad", &log, dp, "mocap_srl_quad", "pos_cmd");
 
-  quad.getPose();
   //  Prepare our context and socket
   zmq::context_t context(1);
   zmq::socket_t socket(context, ZMQ_REP);
@@ -47,6 +43,7 @@ int main() {
     std::cout << "Received req" << std::endl;
 
     // deserialize protobuf message
+    // quad.getPose();
     Vision::Detection det;
     if (!det.ParseFromString(request.to_string())) {
       std::cerr << "Failed to parse protobuf message." << std::endl;
