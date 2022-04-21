@@ -8,8 +8,17 @@
 #include <zmq.hpp>
 #include "frame_conversions.h"
 
+#include "Item.h"
+#include "Quad.h"
+
 int main() {
 
+  std::string log;
+  // FastDDS default participant
+  std::unique_ptr<DefaultParticipant> dp =
+  std::make_unique<DefaultParticipant>(0, "raptor_vision");
+  Quad quad("Quad", &log, dp, "mocap_srl_quad", "pos_cmd");
+  //Item box("box", dp, "mocap_srl_box");
   float camera_x_trans = 0.0f;
   float camera_y_trans = 0.0f;
   float camera_z_trans = 0.0f;
@@ -34,6 +43,15 @@ int main() {
     // data from the camera
     std::vector<float> quad_position;
     std::vector<float> quad_orientation;
+    cpp_msg::Mocap_msg quad_pose = quad.getPose();
+
+    quad_position.push_back(quad_pose.position.x);
+    quad_position.push_back(quad_pose.position.y);
+    quad_position.push_back(quad_pose.position.z);
+
+    quad_orientation.push_back(quad_pose.orientation.roll);
+    quad_orientation.push_back(quad_pose.orientation.pitch);
+    quad_orientation.push_back(quad_pose.orientation.yaw);
 
 
     // Receive the object detection data
@@ -54,16 +72,21 @@ int main() {
     // then from drone frame to global frame
     std::vector<float> point_in_cam_frame{det.x(), det.y(), det.z()};
 
-    // std::vector<float> point_camera_to_drone = util::euler_frame_conversion(
-    //     point_in_cam_frame, camera_orientation, camera_translations);
+    std::vector<float> point_camera_to_drone = util::euler_frame_conversion(
+        point_in_cam_frame, camera_orientation, camera_translations);
 
-    // std::vector<float> point_drone_to_global = util::euler_frame_conversion(
-    //     point_camera_to_drone, quad_orientation, quad_position);
+    std::vector<float> point_drone_to_global = util::euler_frame_conversion(
+        point_camera_to_drone, quad_orientation, quad_position);
 
+    
+    std::cout << point_drone_to_global.at(0) << std::endl;
+    std::cout << point_drone_to_global.at(0) << std::endl;
+    std::cout << point_drone_to_global.at(0) << std::endl;
     
     // point_drone_to_global.at(0);
     // point_drone_to_global.at(1);
     // point_drone_to_global.at(2);
+    
     
   }
   return 0;
