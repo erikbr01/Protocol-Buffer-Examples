@@ -53,6 +53,7 @@ int main() {
     std::vector<float> quad_position;
     std::vector<float> quad_orientation;
     cpp_msg::Mocap_msg quad_pose = quad.getPose();
+    std::cout << "got quad pose from mocap" << std::endl;
 
     quad_position.push_back(quad_pose.position.x);
     quad_position.push_back(quad_pose.position.y);
@@ -62,9 +63,11 @@ int main() {
     quad_orientation.push_back(quad_pose.orientation.pitch);
     quad_orientation.push_back(quad_pose.orientation.yaw);
 
-    // Receive the object detection data
+    // Send request for detection data
     zmq::message_t request;
     socket.send(zmq::str_buffer("ok"), zmq::send_flags::none);
+
+    // Receive answer with detection data
     auto res = socket.recv(request, zmq::recv_flags::none);
 
     // Deserialize protobuf message
@@ -78,21 +81,37 @@ int main() {
 
     // Frame conversions - we need to go from camera frame to drone frame and
     // then from drone frame to global frame
-    std::vector<float> point_in_cam_frame{det.x(), det.y(), det.z()};
 
-    std::vector<float> point_camera_to_drone = util::euler_frame_conversion(
-        point_in_cam_frame, camera_orientation, camera_translations);
+    // Point in camera frame - this is what we're getting back from the camera
+    std::vector<float> point_cam{det.x(), det.y(), det.z()};
 
-    std::vector<float> point_drone_to_global = util::euler_frame_conversion(
-        point_camera_to_drone, quad_orientation, quad_position);
+    // Rotate the point to the drone frame
+    std::vector<float> point_drone_r =
+        util::apply_euler_frame_rotation(point_cam, camera_orientation);
 
-    std::cout << point_drone_to_global.at(0) << std::endl;
-    std::cout << point_drone_to_global.at(0) << std::endl;
-    std::cout << point_drone_to_global.at(0) << std::endl;
+    // Apply the translation in the drone frame
+    std::vector<float> point_drone_rt =
+        util::apply_frame_translation(point_drone_r, camera_translations);
 
-    // point_drone_to_global.at(0);
-    // point_drone_to_global.at(1);
-    // point_drone_to_global.at(2);
+    // Now, convert this into a global frame
+    // Apply rotation into global frame
+    std::vector<float> point_global_r =
+        util::apply_euler_frame_rotation(point_drone_rt, quad_orientation);
+
+    // Apply translation into global frame
+    std::vector<float> point_global_rt =
+        util::apply_frame_translation(point_global_r, quad_position);
+
+    std::cout << "POINT IN TRANS/ROT COORDINATES ------------" << std::endl;
+    std::cout << point_global_rt.at(0) << std::endl;
+    std::cout << point_global_rt.at(1) << std::endl;
+    std::cout << point_global_rt.at(2) << std::endl;
+
+    // cpp_msg::Mocap_msg mocap;
+    // mocap.position.x = point_global_rt.at(0);
+    // mocap.position.y = point_global_rt.at(1);
+    // mocap.position.z = point_global_rt.at(2);
+    // pub.publish(mocap);
   }
   return 0;
 }
