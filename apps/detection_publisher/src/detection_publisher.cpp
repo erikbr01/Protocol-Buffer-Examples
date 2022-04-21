@@ -5,8 +5,13 @@
 
 #include "detection_msg.pb.h"
 
-#include <zmq.hpp>
 #include "frame_conversions.h"
+#include <zmq.hpp>
+
+#include "Mocap_msg.h"
+#include "Mocap_msgPubSubTypes.h"
+#include "domain_participant.h"
+#include "publisher.h"
 
 #include "Item.h"
 #include "Quad.h"
@@ -16,9 +21,13 @@ int main() {
   std::string log;
   // FastDDS default participant
   std::unique_ptr<DefaultParticipant> dp =
-  std::make_unique<DefaultParticipant>(0, "raptor_vision");
+      std::make_unique<DefaultParticipant>(0, "raptor_vision");
   Quad quad("Quad", &log, dp, "mocap_srl_quad", "pos_cmd");
-  //Item box("box", dp, "mocap_srl_box");
+  // Item box("box", dp, "mocap_srl_box");
+
+  DDSPublisher pub = DDSPublisher(idl_msg::Mocap_msgPubSubType(),
+                                  "vision_srl_box", dp->participant());
+
   float camera_x_trans = 0.0f;
   float camera_y_trans = 0.0f;
   float camera_z_trans = 0.0f;
@@ -53,7 +62,6 @@ int main() {
     quad_orientation.push_back(quad_pose.orientation.pitch);
     quad_orientation.push_back(quad_pose.orientation.yaw);
 
-
     // Receive the object detection data
     zmq::message_t request;
     socket.send(zmq::str_buffer("ok"), zmq::send_flags::none);
@@ -78,16 +86,13 @@ int main() {
     std::vector<float> point_drone_to_global = util::euler_frame_conversion(
         point_camera_to_drone, quad_orientation, quad_position);
 
-    
     std::cout << point_drone_to_global.at(0) << std::endl;
     std::cout << point_drone_to_global.at(0) << std::endl;
     std::cout << point_drone_to_global.at(0) << std::endl;
-    
+
     // point_drone_to_global.at(0);
     // point_drone_to_global.at(1);
     // point_drone_to_global.at(2);
-    
-    
   }
   return 0;
 }
