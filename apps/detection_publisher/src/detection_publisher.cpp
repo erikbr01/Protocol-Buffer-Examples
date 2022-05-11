@@ -1,3 +1,4 @@
+#include <cmath>
 #include <fstream>
 #include <google/protobuf/util/time_util.h>
 #include <iostream>
@@ -74,9 +75,9 @@ int main() {
     std::cout << box.getPose().position.y << std::endl;
     std::cout << box.getPose().position.z << std::endl;
 
-    quad_orientation.push_back(quad_pose.orientation.roll);
-    quad_orientation.push_back(quad_pose.orientation.pitch);
-    quad_orientation.push_back(quad_pose.orientation.yaw);
+    quad_orientation.push_back(quad_pose.orientation.roll * M_PI / 180.0f);
+    quad_orientation.push_back(quad_pose.orientation.pitch * M_PI / 180.0f);
+    quad_orientation.push_back(quad_pose.orientation.yaw * M_PI / 180.0f);
 
     std::cout << "Quad orientation:" << std::endl;
     std::cout << quad_orientation.at(0) << std::endl;
