@@ -22,8 +22,9 @@ int main() {
   // FastDDS default participant
   std::unique_ptr<DefaultParticipant> dp =
       std::make_unique<DefaultParticipant>(0, "raptor_vision");
-  Quad quad("Quad", &log, dp, "mocap_srl_quad", "pos_cmd");
-  // Item box("box", dp, "mocap_srl_box");
+  Quad quad("Drone", &log, dp, "mocap_srl_realsense", "pos_cmd");
+  Item box("Box", dp, "mocap_srl_box");
+  //   Item quad("Cam", dp, "mocap_srl_realsense");
 
   DDSPublisher pub = DDSPublisher(idl_msg::Mocap_msgPubSubType(),
                                   "vision_srl_box", dp->participant());
@@ -53,15 +54,38 @@ int main() {
     std::vector<float> quad_position;
     std::vector<float> quad_orientation;
     cpp_msg::Mocap_msg quad_pose = quad.getPose();
+
+    cpp_msg::Mocap_msg item_pose = box.getPose();
+    std::vector<float> item_position;
+
     std::cout << "got quad pose from mocap" << std::endl;
 
     quad_position.push_back(quad_pose.position.x);
     quad_position.push_back(quad_pose.position.y);
     quad_position.push_back(quad_pose.position.z);
 
+    std::cout << "Quad position:" << std::endl;
+    std::cout << quad_position.at(0) << std::endl;
+    std::cout << quad_position.at(1) << std::endl;
+    std::cout << quad_position.at(2) << std::endl;
+
+    std::cout << "Box position:" << std::endl;
+    std::cout << box.getPose().position.x << std::endl;
+    std::cout << box.getPose().position.y << std::endl;
+    std::cout << box.getPose().position.z << std::endl;
+
     quad_orientation.push_back(quad_pose.orientation.roll);
     quad_orientation.push_back(quad_pose.orientation.pitch);
     quad_orientation.push_back(quad_pose.orientation.yaw);
+
+    std::cout << "Quad orientation:" << std::endl;
+    std::cout << quad_orientation.at(0) << std::endl;
+    std::cout << quad_orientation.at(1) << std::endl;
+    std::cout << quad_orientation.at(2) << std::endl;
+
+    item_position.push_back(item_pose.position.x);
+    item_position.push_back(item_pose.position.y);
+    item_position.push_back(item_pose.position.z);
 
     // Send request for detection data
     zmq::message_t request;
@@ -106,6 +130,11 @@ int main() {
     std::cout << point_global_rt.at(0) << std::endl;
     std::cout << point_global_rt.at(1) << std::endl;
     std::cout << point_global_rt.at(2) << std::endl;
+
+    std::cout << "ERROR ------------" << std::endl;
+    std::cout << item_position.at(0) - point_global_rt.at(0) << std::endl;
+    std::cout << item_position.at(1) - point_global_rt.at(1) << std::endl;
+    std::cout << item_position.at(2) - point_global_rt.at(2) << std::endl;
 
     // cpp_msg::Mocap_msg mocap;
     // mocap.position.x = point_global_rt.at(0);
