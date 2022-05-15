@@ -36,9 +36,14 @@ int main() {
     std::vector<float> quad_orientation;
 
 
-    // Receive the object detection data
-    zmq::message_t request;
-    socket.send(zmq::str_buffer("ok"), zmq::send_flags::none);
+    Vision::Detection pose;
+    pose.set_x(0.0f);
+
+    std::string msg_string;
+    pose.SerializeToString(&msg_string);
+    zmq::message_t request(msg_string.size());
+    memcpy((void*) request.data(), msg_string.c_str(), msg_string.size());
+    socket.send(request, zmq::send_flags::none);
     auto res = socket.recv(request, zmq::recv_flags::none);
 
     // Deserialize protobuf message
