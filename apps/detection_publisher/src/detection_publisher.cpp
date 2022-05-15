@@ -88,9 +88,21 @@ int main() {
     item_position.push_back(item_pose.position.y);
     item_position.push_back(item_pose.position.z);
 
-    // Send request for detection data
-    zmq::message_t request;
-    socket.send(zmq::str_buffer("ok"), zmq::send_flags::none);
+        
+    Vision::Detection pose;
+    pose.set_x(quad_position.at(0));
+    pose.set_y(quad_position.at(1));
+    pose.set_z(quad_position.at(2));
+    pose.set_roll(quad_orientation.at(0));
+    pose.set_pitch(quad_orientation.at(1));
+    pose.set_yaw(quad_orientation.at(2));
+
+    std::string msg_string;
+    pose.SerializeToString(&msg_string);
+    zmq::message_t request(msg_string.size());
+    memcpy((void*) request.data(), msg_string.c_str(), msg_string.size());
+    socket.send(request, zmq::send_flags::none);
+    auto res = socket.recv(request, zmq::recv_flags::none);
 
     // Receive answer with detection data
     auto res = socket.recv(request, zmq::recv_flags::none);

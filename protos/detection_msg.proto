@@ -1,9 +1,12 @@
-syntax = "proto3";
+syntax = "proto2";
 package Vision;
 message Detection {
 	optional float x = 1;
 	optional float y = 2;
 	optional float z = 3;
-	optional string label = 4;
-	optional float confidence = 5;
+	optional float roll = 4;
+	optional float pitch = 5;
+	optional float yaw = 6;
+	optional string label = 7;
+	optional float confidence = 8;
 }
