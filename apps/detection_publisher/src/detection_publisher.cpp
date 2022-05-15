@@ -114,40 +114,40 @@ int main() {
       return -1;
     }
 
-    std::cout << det.DebugString() << std::endl;
+    // std::cout << det.DebugString() << std::endl;
 
     // Frame conversions - we need to go from camera frame to drone frame and
     // then from drone frame to global frame
 
     // Point in camera frame - this is what we're getting back from the camera
-    std::vector<float> point_cam{det.x(), det.y(), det.z()};
+    std::vector<float> point_global{det.x(), det.y(), det.z()};
 
-    // Rotate the point to the drone frame
-    std::vector<float> point_drone_r =
-        util::apply_euler_frame_rotation(point_cam, camera_orientation);
+    // // Rotate the point to the drone frame
+    // std::vector<float> point_drone_r =
+    //     util::apply_euler_frame_rotation(point_cam, camera_orientation);
 
-    // Apply the translation in the drone frame
-    std::vector<float> point_drone_rt =
-        util::apply_frame_translation(point_drone_r, camera_translations);
+    // // Apply the translation in the drone frame
+    // std::vector<float> point_drone_rt =
+    //     util::apply_frame_translation(point_drone_r, camera_translations);
 
-    // Now, convert this into a global frame
-    // Apply rotation into global frame
-    std::vector<float> point_global_r =
-        util::apply_euler_frame_rotation(point_drone_rt, quad_orientation);
+    // // Now, convert this into a global frame
+    // // Apply rotation into global frame
+    // std::vector<float> point_global_r =
+    //     util::apply_euler_frame_rotation(point_drone_rt, quad_orientation);
 
-    // Apply translation into global frame
-    std::vector<float> point_global_rt =
-        util::apply_frame_translation(point_global_r, quad_position);
+    // // Apply translation into global frame
+    // std::vector<float> point_global_rt =
+    //     util::apply_frame_translation(point_global_r, quad_position);
 
     std::cout << "POINT IN TRANS/ROT COORDINATES ------------" << std::endl;
-    std::cout << point_global_rt.at(0) << std::endl;
-    std::cout << point_global_rt.at(1) << std::endl;
-    std::cout << point_global_rt.at(2) << std::endl;
+    std::cout << point_global.at(0) << std::endl;
+    std::cout << point_global.at(1) << std::endl;
+    std::cout << point_global.at(2) << std::endl;
 
     std::cout << "ERROR ------------" << std::endl;
-    std::cout << item_position.at(0) - point_global_rt.at(0) << std::endl;
-    std::cout << item_position.at(1) - point_global_rt.at(1) << std::endl;
-    std::cout << item_position.at(2) - point_global_rt.at(2) << std::endl;
+    std::cout << item_position.at(0) - point_global.at(0) << std::endl;
+    std::cout << item_position.at(1) - point_global.at(1) << std::endl;
+    std::cout << item_position.at(2) - point_global.at(2) << std::endl;
 
     // cpp_msg::Mocap_msg mocap;
     // mocap.position.x = point_global_rt.at(0);
