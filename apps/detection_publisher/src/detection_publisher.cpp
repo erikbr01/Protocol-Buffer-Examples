@@ -59,7 +59,7 @@ int main() {
     cpp_msg::Mocap_msg item_pose = box.getPose();
     std::vector<float> item_position;
 
-    std::cout << "got quad pose from mocap" << std::endl;
+    // std::cout << "got quad pose from mocap" << std::endl;
 
     quad_position.push_back(quad_pose.position.x);
     quad_position.push_back(quad_pose.position.y);
