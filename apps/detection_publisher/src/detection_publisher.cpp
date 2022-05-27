@@ -88,7 +88,6 @@ int main() {
     item_position.push_back(item_pose.position.y);
     item_position.push_back(item_pose.position.z);
 
-        
     Vision::Detection pose;
     pose.set_x(quad_position.at(0));
     pose.set_y(quad_position.at(1));
@@ -100,12 +99,12 @@ int main() {
     std::string msg_string;
     pose.SerializeToString(&msg_string);
     zmq::message_t request(msg_string.size());
-    memcpy((void*) request.data(), msg_string.c_str(), msg_string.size());
+    memcpy((void *)request.data(), msg_string.c_str(), msg_string.size());
     socket.send(request, zmq::send_flags::none);
     auto res = socket.recv(request, zmq::recv_flags::none);
 
     // Receive answer with detection data
-    auto res = socket.recv(request, zmq::recv_flags::none);
+    // auto res = socket.recv(request, zmq::recv_flags::none);
 
     // Deserialize protobuf message
     Vision::Detection det;
@@ -121,7 +120,6 @@ int main() {
 
     // Point in camera frame - this is what we're getting back from the camera
     std::vector<float> point_global{det.x(), det.y(), det.z()};
-
     // // Rotate the point to the drone frame
     // std::vector<float> point_drone_r =
     //     util::apply_euler_frame_rotation(point_cam, camera_orientation);
