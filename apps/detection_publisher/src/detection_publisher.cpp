@@ -1,3 +1,4 @@
+#include <chrono>
 #include <cmath>
 #include <fstream>
 #include <google/protobuf/util/time_util.h>
@@ -48,6 +49,43 @@ int main() {
   zmq::socket_t socket(context, ZMQ_REQ);
   socket.bind("tcp://*:5555");
 
+  std::ofstream output;
+  std::time_t timestamp =
+      std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
+  std::string date = std::ctime(&timestamp);
+
+  output.open("logs/" + date + ".csv");
+  output << "vision_x"
+         << ","
+         << "vision_y"
+         << ","
+         << "vision_z"
+         << ","
+         << "mocap_x"
+         << ","
+         << "mocap_y"
+         << ","
+         << "mocap_z"
+         << ","
+         << "quad_x"
+         << ","
+         << "quad_y"
+         << ","
+         << "quad_z"
+         << ","
+         << "quad_roll"
+            ","
+         << "quad_pitch"
+         << ","
+         << "quad_yaw"
+         << ","
+         << "error_x"
+         << ","
+         << "error_y"
+         << ","
+         << "error_z"
+         << "\n";
+
   while (true) {
     //  Send initial message that detection can move on
     // Save position of the drone - this should be synced up with the detection
@@ -88,7 +126,6 @@ int main() {
     item_position.push_back(item_pose.position.y);
     item_position.push_back(item_pose.position.z);
 
-        
     Vision::Detection pose;
     pose.set_x(quad_position.at(0));
     pose.set_y(quad_position.at(1));
@@ -100,12 +137,12 @@ int main() {
     std::string msg_string;
     pose.SerializeToString(&msg_string);
     zmq::message_t request(msg_string.size());
-    memcpy((void*) request.data(), msg_string.c_str(), msg_string.size());
+    memcpy((void *)request.data(), msg_string.c_str(), msg_string.size());
     socket.send(request, zmq::send_flags::none);
     auto res = socket.recv(request, zmq::recv_flags::none);
 
     // Receive answer with detection data
-    auto res = socket.recv(request, zmq::recv_flags::none);
+    // auto res = socket.recv(request, zmq::recv_flags::none);
 
     // Deserialize protobuf message
     Vision::Detection det;
@@ -149,11 +186,26 @@ int main() {
     std::cout << item_position.at(1) - point_global.at(1) << std::endl;
     std::cout << item_position.at(2) - point_global.at(2) << std::endl;
 
+    float errx = item_position.at(0) - point_global.at(0);
+    float erry = item_position.at(1) - point_global.at(1);
+    float errz = item_position.at(2) - point_global.at(2);
+
+    output << point_global.at(0) << "," << point_global.at(1) << ","
+           << point_global.at(2) << ",";
+    output << item_position.at(0) << "," << item_position.at(1) << ","
+           << item_position.at(2) << ",";
+    output << quad_position.at(0) << "," << quad_position.at(1) << ","
+           << quad_position.at(2) << ",";
+    output << quad_orientation.at(0) << "," << quad_orientation.at(1) << ","
+           << quad_orientation.at(2) << ",";
+    output << errx << "," << erry << "," << errz << "\n";
+
     // cpp_msg::Mocap_msg mocap;
     // mocap.position.x = point_global_rt.at(0);
     // mocap.position.y = point_global_rt.at(1);
     // mocap.position.z = point_global_rt.at(2);
     // pub.publish(mocap);
   }
+  output.close();
   return 0;
 }
