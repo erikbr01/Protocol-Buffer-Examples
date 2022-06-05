@@ -4,6 +4,7 @@
 #include <google/protobuf/util/time_util.h>
 #include <iostream>
 #include <string>
+#include <ctime>
 
 #include "detection_msg.pb.h"
 
@@ -24,8 +25,8 @@ int main() {
   // FastDDS default participant
   std::unique_ptr<DefaultParticipant> dp =
       std::make_unique<DefaultParticipant>(0, "raptor_vision");
-  Quad quad("Drone", &log, dp, "mocap_srl_realsense", "pos_cmd");
-  Item box("Box", dp, "mocap_srl_box");
+  Quad quad("Drone", &log, dp, "mocap_srl_raptor", "pos_cmd");
+  Item box("Box", dp, "mocap_srl_vision_bottle");
   //   Item quad("Cam", dp, "mocap_srl_realsense");
 
   DDSPublisher pub = DDSPublisher(idl_msg::Mocap_msgPubSubType(),
@@ -47,7 +48,7 @@ int main() {
   //  Prepare our context and socket
   zmq::context_t context(1);
   zmq::socket_t socket(context, ZMQ_REQ);
-  socket.bind("tcp://*:5555");
+  socket.bind("tcp://*:2222");
 
   std::ofstream output;
   std::time_t timestamp =
@@ -84,6 +85,8 @@ int main() {
          << "error_y"
          << ","
          << "error_z"
+         << ","
+         << "t"
          << "\n";
 
   while (true) {
@@ -103,28 +106,34 @@ int main() {
     quad_position.push_back(quad_pose.position.y);
     quad_position.push_back(quad_pose.position.z);
 
-    std::cout << "Quad position:" << std::endl;
-    std::cout << quad_position.at(0) << std::endl;
-    std::cout << quad_position.at(1) << std::endl;
-    std::cout << quad_position.at(2) << std::endl;
+//     std::cout << "Quad position:" << std::endl;
+//     std::cout << quad_position.at(0) << std::endl;
+//     std::cout << quad_position.at(1) << std::endl;
+//     std::cout << quad_position.at(2) << std::endl;
 
-    std::cout << "Box position:" << std::endl;
-    std::cout << box.getPose().position.x << std::endl;
-    std::cout << box.getPose().position.y << std::endl;
-    std::cout << box.getPose().position.z << std::endl;
+//     std::cout << "Box position:" << std::endl;
+//     std::cout << box.getPose().position.x << std::endl;
+//     std::cout << box.getPose().position.y << std::endl;
+//     std::cout << box.getPose().position.z << std::endl;
 
     quad_orientation.push_back(quad_pose.orientation.roll * M_PI / 180.0f);
     quad_orientation.push_back(quad_pose.orientation.pitch * M_PI / 180.0f);
     quad_orientation.push_back(quad_pose.orientation.yaw * M_PI / 180.0f);
 
-    std::cout << "Quad orientation:" << std::endl;
-    std::cout << quad_orientation.at(0) << std::endl;
-    std::cout << quad_orientation.at(1) << std::endl;
-    std::cout << quad_orientation.at(2) << std::endl;
 
     item_position.push_back(item_pose.position.x);
     item_position.push_back(item_pose.position.y);
     item_position.push_back(item_pose.position.z);
+
+//     std::cout << "Quad orientation:" << std::endl;
+//     std::cout << quad_orientation.at(0) << std::endl;
+//     std::cout << quad_orientation.at(1) << std::endl;
+//     std::cout << quad_orientation.at(2) << std::endl;
+
+    std::cout << "Translation difference:" << std::endl;
+    std::cout << quad_position.at(0) - item_position.at(1) << std::endl;
+    std::cout << quad_position.at(1) - item_position.at(1) << std::endl;
+    std::cout << quad_position.at(2) - item_position.at(2) << std::endl;
 
     Vision::Detection pose;
     pose.set_x(quad_position.at(0));
@@ -175,19 +184,19 @@ int main() {
     // std::vector<float> point_global_rt =
     //     util::apply_frame_translation(point_global_r, quad_position);
 
-    std::cout << "POINT IN TRANS/ROT COORDINATES ------------" << std::endl;
-    std::cout << point_global.at(0) << std::endl;
-    std::cout << point_global.at(1) << std::endl;
-    std::cout << point_global.at(2) << std::endl;
-
-    std::cout << "ERROR ------------" << std::endl;
-    std::cout << item_position.at(0) - point_global.at(0) << std::endl;
-    std::cout << item_position.at(1) - point_global.at(1) << std::endl;
-    std::cout << item_position.at(2) - point_global.at(2) << std::endl;
+//     std::cout << "POINT IN TRANS/ROT COORDINATES ------------" << std::endl;
+//     std::cout << point_global.at(0) << std::endl;
+//     std::cout << point_global.at(1) << std::endl;
+//     std::cout << point_global.at(2) << std::endl;
 
     float errx = item_position.at(0) - point_global.at(0);
     float erry = item_position.at(1) - point_global.at(1);
     float errz = item_position.at(2) - point_global.at(2);
+
+    std::cout << "ERROR ------------" << std::endl;
+    std::cout << errx << std::endl;
+    std::cout << erry << std::endl;
+    std::cout << errz << std::endl;
 
     output << point_global.at(0) << "," << point_global.at(1) << ","
            << point_global.at(2) << ",";
@@ -197,13 +206,16 @@ int main() {
            << quad_position.at(2) << ",";
     output << quad_orientation.at(0) << "," << quad_orientation.at(1) << ","
            << quad_orientation.at(2) << ",";
-    output << errx << "," << erry << "," << errz << "\n";
+    output << errx << "," << erry << "," << errz << ",";
 
-    // cpp_msg::Mocap_msg mocap;
-    // mocap.position.x = point_global_rt.at(0);
-    // mocap.position.y = point_global_rt.at(1);
-    // mocap.position.z = point_global_rt.at(2);
-    // pub.publish(mocap);
+    std::time_t ms = std::time(nullptr);
+    output << ms << "\n";
+
+//     cpp_msg::Mocap_msg mocap;
+//     mocap.position.x = point_global.at(0);
+//     mocap.position.y = point_global.at(1);
+//     mocap.position.z = point_global.at(2);
+//     pub.publish(mocap);
   }
   output.close();
   return 0;
