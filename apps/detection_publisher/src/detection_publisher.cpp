@@ -131,7 +131,7 @@ int main() {
 //     std::cout << quad_orientation.at(2) << std::endl;
 
     std::cout << "Translation difference:" << std::endl;
-    std::cout << quad_position.at(0) - item_position.at(1) << std::endl;
+    std::cout << quad_position.at(0) - item_position.at(0) << std::endl;
     std::cout << quad_position.at(1) - item_position.at(1) << std::endl;
     std::cout << quad_position.at(2) - item_position.at(2) << std::endl;
 
