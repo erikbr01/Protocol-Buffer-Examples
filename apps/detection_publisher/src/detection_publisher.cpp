@@ -211,11 +211,11 @@ int main() {
     std::time_t ms = std::time(nullptr);
     output << ms << "\n";
 
-//     cpp_msg::Mocap_msg mocap;
-//     mocap.position.x = point_global.at(0);
-//     mocap.position.y = point_global.at(1);
-//     mocap.position.z = point_global.at(2);
-//     pub.publish(mocap);
+    cpp_msg::Mocap_msg mocap;
+    mocap.position.x = point_global.at(0);
+    mocap.position.y = point_global.at(1);
+    mocap.position.z = point_global.at(2);
+    pub.publish(mocap);
   }
   output.close();
   return 0;
