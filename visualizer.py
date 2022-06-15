@@ -150,24 +150,25 @@ def analyse_axis(df, axis, plot=False):
     
     # plt.show()
 
-def plot_vector(vec, y_label, x_vec=None, x_label=None):
+def plot_vector(vec, y_label, x_vec=None, x_label=None, color='blue'):
     data = np.asarray(vec)
     timesteps = np.linspace(0, data.size - 1, data.size) if x_vec is None else x_vec
     x_label = '' if x_label is None else x_label
-    fig = plt.figure()
-    ax = fig.add_subplot()
-    plt.scatter(timesteps, data, c='blue')
-    # plt.plot(data, timesteps)
-    ax.set_xlabel(x_label)
-    ax.set_ylabel(y_label)
+    # fig = plt.figure()
+    # ax = fig.add_subplot()
+    plt.scatter(timesteps, data, c=color)
+    plt.plot(timesteps, data, color=color, label=y_label)
+    # ax.set_xlabel(x_label)
+    # ax.set_ylabel(y_label)
     min_val = np.abs(np.min(data))
     max_val = np.abs(np.max(data))
     if min_val > max_val:
         max_val = min_val
 
     plt.axhline(y=0.0, color='r')
-    ax.set_ylim(-max_val - 0.05 * max_val, max_val + 0.05 * max_val)
-    plt.show()
+    # ax.set_ylim(-max_val - 0.05 * max_val, max_val + 0.05 * max_val)
+    plt.subplots_adjust(left=0.15)
+    
 
     
 if __name__ == '__main__':
@@ -177,19 +178,22 @@ if __name__ == '__main__':
         'logs/bottle_-15_0_05/test.csv',
         'logs/bottle_-2_0_05/test.csv'
         ], (480, 640))
-    vis.export_to_csv('testing_concat.csv')
+        
     x_vals = [1.7 + i*0.5 for i in range(0,3)]
     y_val = 0.0
-    z_val = 0.05
+    z_val = 0.5
     tolerance = 0.05
     means = []
     stds = []
     axis = ['error_x', 'error_y', 'error_z']
+    # axis = ['error_x']
     for val in x_vals:
-        expr = abs(abs(vis.df.quad_x - vis.df.mocap_x) - val)
+        expr_x = abs(abs(vis.df.quad_x - vis.df.mocap_x) - val) 
+        expr_y = abs(abs(vis.df.quad_y - vis.df.mocap_y) - y_val) 
+        expr_z = abs(abs(vis.df.quad_z - vis.df.mocap_z) - z_val) 
         
         
-        data = expr.to_numpy(dtype='float64')
+        data = expr_x.to_numpy(dtype='float64')
         idx = np.where(data < 0.05)
         data = data[idx]
         print(f'numpy data shape: {data.shape}')
@@ -201,7 +205,7 @@ if __name__ == '__main__':
         # plt.show()
 
 
-        temp_df = vis.df[expr < 0.05]
+        temp_df = vis.df[(expr_x < tolerance) & (expr_y < tolerance) & (expr_z < tolerance)]
         print(f'dataframe shape: {temp_df.shape}')
         df_means = []
         df_stds = []
@@ -219,7 +223,24 @@ if __name__ == '__main__':
         axis_mean = np.mean(entry)
         means_simplified.append(axis_mean)
 
+    means = np.asarray(means)
+    x_means = means[:, 0]
+    y_means = means[:, 1]
+    z_means = means[:, 2]
 
-    plot_vector(means_simplified, 'Mean Error [m]', x_vals, 'Translation in x [m]')
-
+    fig = plt.figure()
+    plot_vector(x_means, 'Mean Error in x [m]', x_vals, 'Translation in x [m]', 'blue')
+    plot_vector(y_means, 'Mean Error in y [m]', x_vals, 'Translation in x [m]', 'orange')
+    plot_vector(z_means, 'Mean Error in z [m]', x_vals, 'Translation in x [m]', 'magenta')
+    plot_vector(means_simplified, 'Combined Mean Error [m]', x_vals, 'Translation in x [m]', 'cyan')
+    
+    lgd = plt.legend(loc='center left', bbox_to_anchor=(1, 0.5),
+          fancybox=True, shadow=True)
+    plt.xlabel('Translation in x [m]')
+    
+    fig.set_size_inches(12.0, 8.0, forward=True)
+    plt.title('Static Error With Bottle')
+    plt.autoscale()
+    fig.savefig('samplefigure.png', bbox_extra_artists=(lgd,), bbox_inches='tight', dpi=300)
+    # plt.show()
     
