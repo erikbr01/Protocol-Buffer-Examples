@@ -171,29 +171,35 @@ def plot_vector(vec, y_label, x_vec=None, x_label=None, color='blue'):
     
 
     
-if __name__ == '__main__':
+def analyze_series_3d_error():
     vis = DataAnalyzer(
         [
-        'logs/bottle_-1_0_05/bottle_static_1m.csv',
-        'logs/bottle_-15_0_05/test.csv',
-        'logs/bottle_-2_0_05/test.csv'
+        'logs/bottle_0_1_1_flying/1.csv',
+        'logs/bottle_0_1_1_flying/2.csv',
+        'logs/bottle_0_1_1_flying/3.csv',
+        'logs/bottle_0_1_1_flying/4.csv',
+        'logs/bottle_0_1_1_flying/5.csv',
+        'logs/bottle_0_1_1_flying/6.csv',
+        'logs/bottle_0_1_1_flying/7.csv',
+        'logs/bottle_0_1_1_flying/8.csv',
         ], (480, 640))
         
-    x_vals = [1.7 + i*0.5 for i in range(0,3)]
-    y_val = 0.0
-    z_val = 0.5
-    tolerance = 0.05
+    # x_vals = [1.7 + i*0.25 for i in range(0,3)]
+    x_val = 0.0
+    y_vals = [1 + i*0.25 for i in range(0,8)]
+    z_val = 1.0
+    tolerance = 0.3
     means = []
     stds = []
     axis = ['error_x', 'error_y', 'error_z']
     # axis = ['error_x']
-    for val in x_vals:
-        expr_x = abs(abs(vis.df.quad_x - vis.df.mocap_x) - val) 
-        expr_y = abs(abs(vis.df.quad_y - vis.df.mocap_y) - y_val) 
-        expr_z = abs(abs(vis.df.quad_z - vis.df.mocap_z) - z_val) 
+    for val in y_vals:
+        # expr_x = abs(abs(vis.df.quad_x - vis.df.mocap_x) - x_val) 
+        expr_y = abs(abs(vis.df.quad_y - vis.df.mocap_y) - val) 
+        # expr_z = abs(abs(vis.df.quad_z - vis.df.mocap_z) - z_val) 
         
         
-        data = expr_x.to_numpy(dtype='float64')
+        data = expr_y.to_numpy(dtype='float64')
         idx = np.where(data < 0.05)
         data = data[idx]
         print(f'numpy data shape: {data.shape}')
@@ -205,7 +211,8 @@ if __name__ == '__main__':
         # plt.show()
 
 
-        temp_df = vis.df[(expr_x < tolerance) & (expr_y < tolerance) & (expr_z < tolerance)]
+        # temp_df = vis.df[(expr_x < tolerance) & (expr_y < tolerance) & (expr_z < tolerance)]
+        temp_df = vis.df[(expr_y < tolerance)]
         print(f'dataframe shape: {temp_df.shape}')
         df_means = []
         df_stds = []
@@ -229,18 +236,50 @@ if __name__ == '__main__':
     z_means = means[:, 2]
 
     fig = plt.figure()
-    plot_vector(x_means, 'Mean Error in x [m]', x_vals, 'Translation in x [m]', 'blue')
-    plot_vector(y_means, 'Mean Error in y [m]', x_vals, 'Translation in x [m]', 'orange')
-    plot_vector(z_means, 'Mean Error in z [m]', x_vals, 'Translation in x [m]', 'magenta')
-    plot_vector(means_simplified, 'Combined Mean Error [m]', x_vals, 'Translation in x [m]', 'cyan')
+    plot_vector(x_means, 'Mean Error in x [m]', y_vals, 'Translation in x [m]', 'blue')
+    plot_vector(y_means, 'Mean Error in y [m]', y_vals, 'Translation in x [m]', 'orange')
+    plot_vector(z_means, 'Mean Error in z [m]', y_vals, 'Translation in x [m]', 'magenta')
+    plot_vector(means_simplified, 'Combined Mean Error [m]', y_vals, 'Translation in y [m]', 'cyan')
     
     lgd = plt.legend(loc='center left', bbox_to_anchor=(1, 0.5),
           fancybox=True, shadow=True)
     plt.xlabel('Translation in x [m]')
     
     fig.set_size_inches(12.0, 8.0, forward=True)
-    plt.title('Static Error With Bottle')
+    plt.title('Dynamic Error With Bottle')
     plt.autoscale()
-    fig.savefig('samplefigure.png', bbox_extra_artists=(lgd,), bbox_inches='tight', dpi=300)
+    fig.savefig('dyn_series.png', bbox_extra_artists=(lgd,), bbox_inches='tight', dpi=300)
     # plt.show()
     
+if __name__ == '__main__':
+#     vis = DataAnalyzer(
+#         ['''logs/bottle_0_1_1_flying/Tue Jun 14 16:27:29 2022
+# .csv''', 
+#         ], (480, 640))
+    
+#     x_error = np.asarray(vis.df['error_x'])
+#     y_error = np.asarray(vis.df['error_y'])
+#     z_error = np.asarray(vis.df['error_z'])
+
+#     timesteps = np.asarray([i for i in range(len(x_error))])
+#     print(timesteps)
+
+#     fig = plt.figure()
+#     plot_vector(x_error, 'Error in x [m]', timesteps, 'Timesteps', color='blue')
+#     plot_vector(y_error, 'Error in y [m]', timesteps, 'Timesteps', color='orange')
+#     plot_vector(z_error, 'Error in z [m]', timesteps, 'Timesteps', color='magenta')
+
+
+    
+#     lgd = plt.legend(loc='center left', bbox_to_anchor=(1, 0.5),
+#           fancybox=True, shadow=True)
+#     plt.xlabel('Frame number')
+    
+#     fig.set_size_inches(12.0, 8.0, forward=True)
+#     plt.title('Dynamic Error In-Flight With Bottle')
+#     plt.autoscale()
+#     fig.savefig('error_flying.png', bbox_extra_artists=(lgd,), bbox_inches='tight', dpi=300)
+    
+#     plt.show()
+
+    analyze_series_3d_error()
