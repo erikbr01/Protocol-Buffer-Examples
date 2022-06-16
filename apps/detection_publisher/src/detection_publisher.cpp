@@ -47,8 +47,10 @@ int main() {
 
   //  Prepare our context and socket
   zmq::context_t context(1);
-  zmq::socket_t socket(context, ZMQ_REQ);
-  socket.bind("tcp://*:2222");
+  zmq::socket_t pose_pub(context, ZMQ_PUB);
+  zmq::socket_t pose_sub(context, ZMQ_SUB);
+  pose_pub.connect("tcp://10.10.10.228:2509");
+  pose_sub.connect("tcp://*:2508");
 
   std::ofstream output;
   std::time_t timestamp =
@@ -147,8 +149,8 @@ int main() {
     pose.SerializeToString(&msg_string);
     zmq::message_t request(msg_string.size());
     memcpy((void *)request.data(), msg_string.c_str(), msg_string.size());
-    socket.send(request, zmq::send_flags::none);
-    auto res = socket.recv(request, zmq::recv_flags::none);
+    pose_pub.send(request, zmq::send_flags::none);
+    auto res = pose_sub.recv(request, zmq::recv_flags::none);
 
     // Receive answer with detection data
     // auto res = socket.recv(request, zmq::recv_flags::none);
