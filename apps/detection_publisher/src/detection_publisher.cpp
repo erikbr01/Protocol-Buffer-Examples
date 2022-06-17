@@ -50,8 +50,8 @@ int main() {
   zmq::socket_t pose_pub(context, ZMQ_PUB);
   zmq::socket_t pose_sub(context, ZMQ_SUB);
   pose_pub.connect("tcp://10.10.10.228:2509");
-  pose_sub.connect("tcp://*:2508");
-
+  pose_sub.connect("tcp://10.10.10.122:2508");
+  std::cout << "connected sockets" << std::endl;
   std::ofstream output;
   std::time_t timestamp =
       std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
@@ -150,6 +150,7 @@ int main() {
     zmq::message_t request(msg_string.size());
     memcpy((void *)request.data(), msg_string.c_str(), msg_string.size());
     pose_pub.send(request, zmq::send_flags::none);
+    std::cout << "published message" << std::endl;
     auto res = pose_sub.recv(request, zmq::recv_flags::none);
 
     // Receive answer with detection data
@@ -217,7 +218,7 @@ int main() {
     mocap.position.x = point_global.at(0);
     mocap.position.y = point_global.at(1);
     mocap.position.z = point_global.at(2);
-    pub.publish(mocap);
+    // pub.publish(mocap);
   }
   output.close();
   return 0;
