@@ -25,8 +25,8 @@ int main() {
   // FastDDS default participant
   std::unique_ptr<DefaultParticipant> dp =
       std::make_unique<DefaultParticipant>(0, "raptor_vision");
-  Quad quad("Drone", &log, dp, "mocap_srl_raptor", "pos_cmd");
-  Item box("Box", dp, "mocap_srl_vision_bottle");
+  Quad quad("Drone", &log, dp, "mocap_srl_realsense", "pos_cmd");
+  Item box("Box", dp, "mocap_srl_box");
   //   Item quad("Cam", dp, "mocap_srl_realsense");
 
   DDSPublisher pub = DDSPublisher(idl_msg::Mocap_msgPubSubType(),
