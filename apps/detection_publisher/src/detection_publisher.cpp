@@ -25,7 +25,7 @@ int main() {
   // FastDDS default participant
   std::unique_ptr<DefaultParticipant> dp =
       std::make_unique<DefaultParticipant>(0, "raptor_vision");
-  Quad quad("Drone", &log, dp, "mocap_srl_realsense", "pos_cmd");
+  Quad quad("Drone", &log, dp, "mocap_srl_raptor_multi", "pos_cmd");
   Item box("Box", dp, "mocap_srl_box");
   //   Item quad("Cam", dp, "mocap_srl_realsense");
 
@@ -166,6 +166,9 @@ int main() {
     // then from drone frame to global frame
 
     // Point in camera frame - this is what we're getting back from the camera
+    if(det.label() == "Nothing") {
+      continue;
+    }
     std::vector<float> point_global{det.x(), det.y(), det.z()};
     // // Rotate the point to the drone frame
     // std::vector<float> point_drone_r =
