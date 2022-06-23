@@ -75,7 +75,7 @@ int main() {
          << "quad_z"
          << ","
          << "quad_roll"
-            ","
+         <<  ","
          << "quad_pitch"
          << ","
          << "quad_yaw"
@@ -85,6 +85,12 @@ int main() {
          << "error_y"
          << ","
          << "error_z"
+         << ","
+         << "trans_x"
+         << ","
+         << "trans_y"
+         << ","
+         << "trans_z"
          << ","
          << "t"
          << "\n";
@@ -131,9 +137,12 @@ int main() {
 //     std::cout << quad_orientation.at(2) << std::endl;
 
     std::cout << "Translation difference:" << std::endl;
-    std::cout << quad_position.at(0) - item_position.at(0) << std::endl;
-    std::cout << quad_position.at(1) - item_position.at(1) << std::endl;
-    std::cout << quad_position.at(2) - item_position.at(2) << std::endl;
+    float trans_x = quad_position.at(0) - item_position.at(0);
+    float trans_y = quad_position.at(1) - item_position.at(1);
+    float trans_z = quad_position.at(2) - item_position.at(2);
+    std::cout << trans_x << std::endl;
+    std::cout << trans_y << std::endl;
+    std::cout << trans_z << std::endl;
 
     Vision::Detection pose;
     pose.set_x(quad_position.at(0));
@@ -195,6 +204,7 @@ int main() {
     float errx = item_position.at(0) - point_global.at(0);
     float erry = item_position.at(1) - point_global.at(1);
     float errz = item_position.at(2) - point_global.at(2);
+    std::time_t ms = std::time(nullptr);
 
     std::cout << "ERROR ------------" << std::endl;
     std::cout << errx << std::endl;
@@ -210,9 +220,10 @@ int main() {
     output << quad_orientation.at(0) << "," << quad_orientation.at(1) << ","
            << quad_orientation.at(2) << ",";
     output << errx << "," << erry << "," << errz << ",";
+    output << trans_x << "," << trans_y << "," << trans_z << ",";
 
-    std::time_t ms = std::time(nullptr);
     output << ms << "\n";
+
 
     cpp_msg::Mocap_msg mocap;
     mocap.position.x = point_global.at(0);
