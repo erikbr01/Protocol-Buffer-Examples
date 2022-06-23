@@ -218,7 +218,7 @@ int main() {
     mocap.position.x = point_global.at(0);
     mocap.position.y = point_global.at(1);
     mocap.position.z = point_global.at(2);
-    // pub.publish(mocap);
+    pub.publish(mocap);
   }
   output.close();
   return 0;
