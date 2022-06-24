@@ -178,6 +178,13 @@ int main() {
     if(det.label() == "Nothing") {
       continue;
     }
+
+    if(det.label() == "closing") {
+      output.close();
+      std::cout << "closing process" << std::endl;
+      break;
+    }
+
     std::vector<float> point_global{det.x(), det.y(), det.z()};
     // // Rotate the point to the drone frame
     // std::vector<float> point_drone_r =
@@ -229,7 +236,8 @@ int main() {
     mocap.position.x = point_global.at(0);
     mocap.position.y = point_global.at(1);
     mocap.position.z = point_global.at(2);
-    pub.publish(mocap);
+    if(mocap.position.x != 0.0)
+      pub.publish(mocap);
   }
   output.close();
   return 0;
