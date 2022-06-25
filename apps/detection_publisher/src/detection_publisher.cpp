@@ -20,30 +20,19 @@
 #include "Quad.h"
 
 int main() {
-
+  long frame_id = 0;
   std::string log;
   // FastDDS default participant
   std::unique_ptr<DefaultParticipant> dp =
       std::make_unique<DefaultParticipant>(0, "raptor_vision");
-  Quad quad("Drone", &log, dp, "mocap_srl_raptor_multi", "pos_cmd");
+  Item quad("Drone", dp, "mocap_srl_raptor_multi");
   Item box("Box", dp, "mocap_srl_box");
   //   Item quad("Cam", dp, "mocap_srl_realsense");
 
   DDSPublisher pub = DDSPublisher(idl_msg::Mocap_msgPubSubType(),
                                   "vision_srl_box", dp->participant());
 
-  float camera_x_trans = 0.0f;
-  float camera_y_trans = 0.0f;
-  float camera_z_trans = 0.0f;
-
-  float camera_roll = 0.0f;
-  float camera_pitch = 0.0f;
-  float camera_yaw = 0.0f;
-
-  std::vector<float> camera_translations{camera_x_trans, camera_y_trans,
-                                         camera_z_trans};
-
-  std::vector<float> camera_orientation{camera_roll, camera_pitch, camera_yaw};
+ 
 
   //  Prepare our context and socket
   zmq::context_t context(1);
@@ -94,8 +83,12 @@ int main() {
          << ","
          << "t"
          << "\n";
-
+  cpp_msg::Mocap_msg last_known_position;
+  last_known_position.occluded = 0;
+  
   while (true) {
+    std::cout << frame_id << std::endl;
+    frame_id++;
     //  Send initial message that detection can move on
     // Save position of the drone - this should be synced up with the detection
     // data from the camera
@@ -175,7 +168,10 @@ int main() {
     // then from drone frame to global frame
 
     // Point in camera frame - this is what we're getting back from the camera
-    if(det.label() == "Nothing") {
+    if(det.label() == "Nothing" && last_known_position.position.x != 0.0) {
+      std::cout << "publishing position" << std::endl;
+      std::cout << last_known_position.position.x << "\t" << last_known_position.position.y << "\t" << last_known_position.position.z << "\t" << std::endl;;
+      pub.publish(last_known_position);
       continue;
     }
 
@@ -236,8 +232,12 @@ int main() {
     mocap.position.x = point_global.at(0);
     mocap.position.y = point_global.at(1);
     mocap.position.z = point_global.at(2);
+    mocap.occluded = 0;
     if(mocap.position.x != 0.0)
+      std::cout << "publishing position" << std::endl;
+      std::cout << mocap.position.x << "\t" << mocap.position.y << "\t" << mocap.position.z << "\t" << std::endl;;
       pub.publish(mocap);
+      last_known_position = mocap;
   }
   output.close();
   return 0;
