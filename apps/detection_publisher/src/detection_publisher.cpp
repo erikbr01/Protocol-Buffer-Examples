@@ -136,6 +136,7 @@ int main() {
     std::cout << trans_x << std::endl;
     std::cout << trans_y << std::endl;
     std::cout << trans_z << std::endl;
+    std::cout << quad_pose.orientation.yaw << std::endl;
 
     Vision::Detection pose;
     pose.set_x(quad_position.at(0));
