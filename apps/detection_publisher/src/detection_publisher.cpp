@@ -183,27 +183,6 @@ int main() {
     }
 
     std::vector<float> point_global{det.x(), det.y(), det.z()};
-    // // Rotate the point to the drone frame
-    // std::vector<float> point_drone_r =
-    //     util::apply_euler_frame_rotation(point_cam, camera_orientation);
-
-    // // Apply the translation in the drone frame
-    // std::vector<float> point_drone_rt =
-    //     util::apply_frame_translation(point_drone_r, camera_translations);
-
-    // // Now, convert this into a global frame
-    // // Apply rotation into global frame
-    // std::vector<float> point_global_r =
-    //     util::apply_euler_frame_rotation(point_drone_rt, quad_orientation);
-
-    // // Apply translation into global frame
-    // std::vector<float> point_global_rt =
-    //     util::apply_frame_translation(point_global_r, quad_position);
-
-//     std::cout << "POINT IN TRANS/ROT COORDINATES ------------" << std::endl;
-//     std::cout << point_global.at(0) << std::endl;
-//     std::cout << point_global.at(1) << std::endl;
-//     std::cout << point_global.at(2) << std::endl;
 
     float errx = item_position.at(0) - point_global.at(0);
     float erry = item_position.at(1) - point_global.at(1);
