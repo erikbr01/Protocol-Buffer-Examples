@@ -83,6 +83,7 @@ int main() {
          << ","
          << "t"
          << "\n";
+
   cpp_msg::Mocap_msg last_known_position;
   last_known_position.occluded = 0;
   
@@ -169,30 +170,29 @@ int main() {
     // then from drone frame to global frame
 
     // Point in camera frame - this is what we're getting back from the camera
-    if(det.label() == "Nothing" && last_known_position.position.x != 0.0) {
-      std::cout << "publishing position" << std::endl;
-      std::cout << last_known_position.position.x << "\t" << last_known_position.position.y << "\t" << last_known_position.position.z << "\t" << std::endl;;
-      pub.publish(last_known_position);
-      continue;
-    }
+   
 
     if(det.label() == "closing") {
       output.close();
       std::cout << "closing process" << std::endl;
       break;
     }
-
+    
     std::vector<float> point_global{det.x(), det.y(), det.z()};
 
     float errx = item_position.at(0) - point_global.at(0);
     float erry = item_position.at(1) - point_global.at(1);
     float errz = item_position.at(2) - point_global.at(2);
     std::time_t ms = std::time(nullptr);
+    
+    if(det.label() != "Nothing") {
 
-    std::cout << "ERROR ------------" << std::endl;
-    std::cout << errx << std::endl;
-    std::cout << erry << std::endl;
-    std::cout << errz << std::endl;
+
+      std::cout << "ERROR ------------" << std::endl;
+      std::cout << errx << std::endl;
+      std::cout << erry << std::endl;
+      std::cout << errz << std::endl;
+    }
 
     output << point_global.at(0) << "," << point_global.at(1) << ","
            << point_global.at(2) << ",";
@@ -213,11 +213,18 @@ int main() {
     mocap.position.y = point_global.at(1);
     mocap.position.z = point_global.at(2);
     mocap.occluded = 0;
-    if(mocap.position.x != 0.0)
-      std::cout << "publishing position" << std::endl;
-      std::cout << mocap.position.x << "\t" << mocap.position.y << "\t" << mocap.position.z << "\t" << std::endl;;
-      pub.publish(mocap);
-      last_known_position = mocap;
+
+    if(det.label() == "Nothing") {
+      std::cout << "received nothing, publishing position" << std::endl;
+      std::cout << last_known_position.position.x << "\t" << last_known_position.position.y << "\t" << last_known_position.position.z << "\t" << std::endl;;
+      pub.publish(last_known_position);
+      continue;
+    }
+    
+    std::cout << "publishing position" << std::endl;
+    std::cout << mocap.position.x << "\t" << mocap.position.y << "\t" << mocap.position.z << "\t" << std::endl;;
+    pub.publish(mocap);
+    last_known_position = mocap;
   }
   output.close();
   return 0;
