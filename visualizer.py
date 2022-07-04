@@ -150,14 +150,15 @@ def analyse_axis(df, axis, plot=False):
     
     # plt.show()
 
-def plot_vector(vec, y_label, x_vec=None, x_label=None, color='blue'):
+def plot_vector(vec, y_label, x_vec=None, x_label=None, color='blue', line=False):
     data = np.asarray(vec)
     timesteps = np.linspace(0, data.size - 1, data.size) if x_vec is None else x_vec
     x_label = '' if x_label is None else x_label
     # fig = plt.figure()
     # ax = fig.add_subplot()
-    plt.scatter(timesteps, data, c=color)
-    plt.plot(timesteps, data, color=color, label=y_label)
+    plt.scatter(timesteps, data, c=color, label=y_label)
+    if line:
+        plt.plot(timesteps, data, color=color, label=y_label)
     # ax.set_xlabel(x_label)
     # ax.set_ylabel(y_label)
     min_val = np.abs(np.min(data))
@@ -252,34 +253,35 @@ def analyze_series_3d_error():
     # plt.show()
     
 if __name__ == '__main__':
-#     vis = DataAnalyzer(
-#         ['''logs/bottle_0_1_1_flying/Tue Jun 14 16:27:29 2022
-# .csv''', 
-#         ], (480, 640))
+    vis = DataAnalyzer(
+        ['''logs/big_data_collection_bottle.csv''', 
+        ], (480, 640))
     
-#     x_error = np.asarray(vis.df['error_x'])
-#     y_error = np.asarray(vis.df['error_y'])
-#     z_error = np.asarray(vis.df['error_z'])
+    x_error = np.asarray(vis.df['error_x'])
+    y_error = np.asarray(vis.df['error_y'])
+    z_error = np.asarray(vis.df['error_z'])
 
-#     timesteps = np.asarray([i for i in range(len(x_error))])
-#     print(timesteps)
+    x_vals = np.asarray(vis.df['trans_x'])
 
-#     fig = plt.figure()
-#     plot_vector(x_error, 'Error in x [m]', timesteps, 'Timesteps', color='blue')
-#     plot_vector(y_error, 'Error in y [m]', timesteps, 'Timesteps', color='orange')
-#     plot_vector(z_error, 'Error in z [m]', timesteps, 'Timesteps', color='magenta')
+    timesteps = np.asarray([i for i in range(len(x_error))])
+    # print(timesteps)
+
+    fig = plt.figure()
+    plot_vector(x_error, 'Error in x [m]', x_vals, 'Timesteps', color='blue', line=False)
+    plot_vector(y_error, 'Error in y [m]', x_vals, 'Timesteps', color='orange', line=False)
+    plot_vector(z_error, 'Error in z [m]', x_vals, 'Timesteps', color='magenta', line=False)
 
 
     
-#     lgd = plt.legend(loc='center left', bbox_to_anchor=(1, 0.5),
-#           fancybox=True, shadow=True)
-#     plt.xlabel('Frame number')
+    lgd = plt.legend(loc='center left', bbox_to_anchor=(1, 0.5),
+          fancybox=True, shadow=True)
+    plt.xlabel('Distance in x [m]')
     
-#     fig.set_size_inches(12.0, 8.0, forward=True)
-#     plt.title('Dynamic Error In-Flight With Bottle')
-#     plt.autoscale()
-#     fig.savefig('error_flying.png', bbox_extra_artists=(lgd,), bbox_inches='tight', dpi=300)
+    fig.set_size_inches(12.0, 8.0, forward=True)
+    plt.title('Dynamic Error In-Flight With Bottle')
+    plt.autoscale()
+    fig.savefig('error_flying_big_data_bottle.png', bbox_extra_artists=(lgd,), bbox_inches='tight', dpi=300)
     
-#     plt.show()
+    plt.show()
 
-    analyze_series_3d_error()
+    # analyze_series_3d_error()
