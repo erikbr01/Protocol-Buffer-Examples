@@ -85,6 +85,9 @@ int main() {
          << "\n";
 
   cpp_msg::Mocap_msg last_known_position;
+  last_known_position.position.x = 0.0;
+  last_known_position.position.y = 0.0;
+  last_known_position.position.z = 0.0;
   last_known_position.occluded = 0;
   
   while (true) {
